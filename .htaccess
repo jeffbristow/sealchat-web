@@ -1,0 +1,45 @@
+# =====================================================================
+# Seal Chat Web — .htaccess
+# ---------------------------------------------------------------------
+# Sections:
+#   1. Start page, no folder listings, file types
+#   2. Block config, library, data and hidden files
+#   3. Caching
+#   4. Always use HTTPS (the browser's encryption needs it)
+# =====================================================================
+
+# ---- 1. Start page, listings off, types ----
+Options -Indexes
+DirectoryIndex index.php
+AddType application/manifest+json .webmanifest
+
+# ---- 2. Block config, library, data and hidden files ----
+<FilesMatch "^(config\.php|lib\.php)$|\.(json|log|bak|tmp)$|^\.">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+RedirectMatch 404 ^.*/data/.*$
+
+# ---- 3. Caching: scripts/styles are versioned (?v=…), pages never cached ----
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|css)$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+    <FilesMatch "\.(png|webmanifest)$">
+        Header set Cache-Control "public, max-age=86400"
+    </FilesMatch>
+</IfModule>
+
+# ---- 4. Always HTTPS ----
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>

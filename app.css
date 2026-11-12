@@ -1,0 +1,270 @@
+/* =====================================================================
+   Seal Chat Web — app.css   (1.1.2)
+   Same look as the Seal Chat app. Phone first: below 760 px wide you see
+   either the chat list or one chat; wider screens show both side by side.
+   1.1.0 sizing (iPhone 17 + Android): every button / field is at least
+   48 px — Apple asks for 44 pt, Android (Material) for 48 dp, so 48 meets
+   both. Body text 17 px (Apple's "Body" size), secondary text 15 px,
+   nothing smaller than 13 px. Safe areas (notch / Dynamic Island / home
+   bar / Android gesture bar) are padded everywhere, including pop-ups.
+   Sections: 1 tokens · 2 base · 3 cards (start, pair, PIN) · 4 layout
+             5 contact list · 6 chat · 7 sheet, scanner, toast · 8 wide screens
+   ===================================================================== */
+
+/* ---------- 1. Tokens ---------- */
+:root {
+  --bg: #121418; --bg-2: #181b21; --bg-3: #1f232b; --bg-4: #272c36; --line: #2c313b;
+  --text: #e6e8ec; --text-2: #a3a9b5; --text-3: #6f7685;
+  --accent: #3ccf91; --accent-2: #2aa874; --accent-ink: #062418;
+  --out: #1f4f3c; --out-line: #2b6a51; --in: #232833;
+  --amber: #f0b445; --red: #ff6464;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI", system-ui, Roboto, sans-serif;
+  /* 1.1.2: the top inset is never less than --safe-t-min, which app.js sets when iOS reports 0
+     while the page is drawn under the status bar (iOS 26 Safari).
+     1.1.3 (Apple: "safe area insets are not a replacement for margins"): every header adds its
+     own margin --top-gap BELOW the inset, so it stays clear of iOS 26's blur under the bar. */
+  --top-gap: 12px;
+  --safe-t: max(env(safe-area-inset-top, 0px), var(--safe-t-min, 0px)); --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px); --safe-r: env(safe-area-inset-right, 0px);
+  --tap: 48px;                       /* smallest button / field (1.1.0) */
+  --fs-body: 17px; --fs-sub: 15px; --fs-cap: 13px;   /* text sizes (1.1.0) */
+  color-scheme: dark;
+}
+
+/* ---------- 2. Base ---------- */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; background: var(--bg); }
+html { background-color: #181b21; }   /* 1.1.3: Safari 26 colours the status-bar area from the page's own background */
+body { color: var(--text); font: var(--fs-body)/1.45 var(--font); -webkit-font-smoothing: antialiased; overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
+input, textarea, button { font: inherit; color: inherit; }
+a { color: #8fd8ff; }
+h1 { font-size: 24px; margin: 6px 0 12px; } h2 { font-size: 20px; margin: 0 0 12px; }
+.hidden { display: none !important; }
+.muted { color: var(--text-2); } .small { font-size: var(--fs-sub); }
+.grow { flex: 1; min-width: 0; } .row { display: flex; align-items: center; } .row.gap { gap: 8px; }
+.pad { padding: 18px; } .center { text-align: center; }
+.error { color: var(--red); min-height: 1.3em; margin: 10px 0; font-size: var(--fs-sub); white-space: pre-wrap; }
+.bad { color: var(--red); }
+
+.btn { background: var(--bg-4); border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px; min-height: var(--tap); cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn:active { background: #313744; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.btn.primary:active { background: #4fdca0; }
+.btn.wide { width: 100%; margin-top: 14px; }
+.btn.small { padding: 10px 16px; font-size: var(--fs-sub); }
+.btn:disabled { opacity: .5; }
+.link { background: none; border: 0; color: var(--text-2); cursor: pointer; margin-top: 10px; font-size: var(--fs-sub); text-decoration: underline; min-height: var(--tap); padding: 0 14px; }
+.icon-btn { background: none; border: 0; color: var(--text-2); font-size: 26px; width: var(--tap); height: var(--tap); border-radius: 12px; cursor: pointer; flex: none; display: inline-flex; align-items: center; justify-content: center; }
+.icon-btn:active { background: var(--bg-4); }
+label { display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-sub); color: var(--text-2); margin: 12px 0; text-align: left; }
+input, textarea { background: var(--bg-3); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; min-height: var(--tap); outline: none; font-size: var(--fs-body); /* 16px or more stops iPhone zooming in */ }
+input:focus, textarea:focus { border-color: var(--accent-2); }
+
+/* ---------- 3. Cards: start, pair, PIN ---------- */
+.screen.center { min-height: 100%; display: flex; align-items: center; justify-content: center; padding: calc(24px + var(--safe-t)) 18px calc(24px + var(--safe-b)); }
+.card { width: 100%; max-width: 400px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 18px; padding: 26px 22px; text-align: center; box-shadow: 0 12px 40px rgba(0, 0, 0, .35); }
+.logo { width: 76px; height: 76px; display: block; margin: 0 auto 6px; }
+.logo.dim { opacity: .35; }
+.steps { text-align: left; padding-left: 22px; margin: 14px 0; color: var(--text); }
+.steps li { margin: 8px 0; }
+.more { margin-top: 12px; text-align: left; }
+.more summary { color: var(--text-2); font-size: var(--fs-sub); cursor: pointer; min-height: var(--tap); display: flex; align-items: center; gap: 8px; list-style: none; }
+.more summary::-webkit-details-marker { display: none; }
+.more summary::before { content: "▸"; color: var(--accent); transition: transform .15s; }
+.more[open] summary::before { transform: rotate(90deg); }
+.more .row { margin-top: 8px; }
+.tip { background: #142233; border: 1px solid #22405e; color: #9cc8f5; border-radius: 12px; padding: 12px 14px; font-size: var(--fs-sub); text-align: left; margin-top: 18px; }
+#lkPin { width: 100%; text-align: center; font-size: 26px; letter-spacing: 8px; margin-top: 10px; min-height: 56px; }
+.code { font: 700 34px/1.2 ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: 4px; background: var(--bg-3); border: 1px dashed var(--accent-2); border-radius: 12px; padding: 12px; margin: 8px 0; color: var(--accent); }
+.spinner { width: 34px; height: 34px; border: 3px solid var(--bg-4); border-top-color: var(--accent); border-radius: 50%; margin: 14px auto 4px; animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- 4. Layout (phone: one pane at a time) ---------- */
+#scrMain { height: 100vh; height: 100dvh; display: flex; overflow: hidden; }
+#side { width: 100%; display: flex; flex-direction: column; background: var(--bg-2); padding-top: calc(var(--safe-t) + var(--top-gap)); padding-left: var(--safe-l); padding-right: var(--safe-r); }
+#pane { display: none; flex: 1; min-width: 0; flex-direction: column; }
+#scrMain.in-chat #side { display: none; }
+#scrMain.in-chat #pane { display: flex; }
+.side-head { display: flex; align-items: center; gap: 12px; padding: 6px 8px 8px 16px; }
+.brand-icon { width: 36px; height: 36px; }
+.net { display: flex; align-items: center; gap: 6px; font-size: var(--fs-cap); color: var(--text-2); }
+.net .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); }
+.net.on .dot { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+.net.bad .dot { background: var(--red); }
+.search { margin: 4px 16px 10px; padding: 10px 14px; border-radius: 12px; }
+
+/* ---------- 5. Contact list ---------- */
+.contact-list { flex: 1; overflow-y: auto; padding: 0 8px calc(10px + var(--safe-b)); -webkit-overflow-scrolling: touch; }
+.contact { display: flex; gap: 14px; align-items: center; width: 100%; min-height: 72px; padding: 10px; border: 0; border-radius: 14px; background: none; text-align: left; cursor: pointer; }
+.contact:active, .contact.active { background: var(--bg-4); }
+.contact .meta { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.contact .top, .contact .bottom { display: flex; gap: 8px; align-items: center; }
+.contact .nm { font-weight: 600; font-size: var(--fs-body); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.contact .when { font-size: var(--fs-cap); color: var(--text-3); }
+.contact .last { flex: 1; font-size: var(--fs-sub); color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.contact.request .last { color: var(--amber); }
+.contact .unread { background: var(--accent); color: var(--accent-ink); font-size: var(--fs-cap); font-weight: 700; border-radius: 12px; padding: 1px 8px; min-width: 24px; text-align: center; }
+.avatar { width: 52px; height: 52px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #0d1015; font-size: 19px; position: relative; }
+.avatar.sm { width: 40px; height: 40px; font-size: 15px; }
+.avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.avatar .pres { position: absolute; right: -1px; bottom: -1px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--bg-2); background: var(--text-3); }
+.avatar .pres.on { background: var(--accent); }
+.c0 { background: #3ccf91; } .c1 { background: #5aa9ff; } .c2 { background: #f0b445; } .c3 { background: #c58af9; } .c4 { background: #ff8f6b; }
+.c5 { background: #4fd1d9; } .c6 { background: #e7d36f; } .c7 { background: #ff7aa8; } .c8 { background: #8fd18a; }
+
+/* ---------- 6. Chat ---------- */
+.chat-pane { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.chat-head { display: flex; align-items: center; gap: 10px; min-height: calc(60px + var(--safe-t) + var(--top-gap)); padding: calc(6px + var(--safe-t) + var(--top-gap)) calc(12px + var(--safe-r)) 6px calc(4px + var(--safe-l)); background: var(--bg-2); border-bottom: 1px solid var(--line); }
+.chat-head .back { font-size: 38px; line-height: 1; color: var(--accent); }
+.ch-title .muted.small { font-size: var(--fs-cap); }
+.ch-title b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.msg-list { flex: 1; overflow-y: auto; padding: 14px calc(14px + var(--safe-r)) 10px calc(14px + var(--safe-l)); display: flex; flex-direction: column; gap: 4px; -webkit-overflow-scrolling: touch; }
+.center-btn { align-self: center; margin: 6px 0 10px; }
+.day { align-self: center; font-size: var(--fs-cap); color: var(--text-3); background: var(--bg-2); border-radius: 12px; padding: 3px 12px; margin: 12px 0 8px; }
+.bubble { max-width: 82%; padding: 8px 13px 6px; border-radius: 18px; word-wrap: break-word; overflow-wrap: anywhere; white-space: pre-wrap; margin-top: 6px; }
+.bubble.same { margin-top: 0; }
+.bubble.in { align-self: flex-start; background: var(--in); border-bottom-left-radius: 5px; }
+.bubble.out { align-self: flex-end; background: var(--out); border: 1px solid var(--out-line); border-bottom-right-radius: 5px; }
+.bubble.queued { opacity: .75; border-style: dashed; }
+.bubble.failed { border-color: #5e2a2a; cursor: pointer; }
+.bubble .ft { font-size: var(--fs-cap); color: var(--text-2); display: flex; gap: 6px; justify-content: flex-end; align-items: center; margin-top: 2px; }
+.bubble .tick.read { color: var(--accent); }
+.bubble .file { display: flex; gap: 10px; align-items: center; white-space: normal; }
+.bubble .ficon { font-size: 26px; }
+.bubble .file .muted.small { font-size: var(--fs-cap); }
+.composer { display: flex; gap: 8px; align-items: flex-end; padding: 8px calc(10px + var(--safe-r)) calc(8px + var(--safe-b)) calc(10px + var(--safe-l)); background: var(--bg-2); border-top: 1px solid var(--line); }
+.composer textarea { flex: 1; resize: none; min-height: var(--tap); max-height: 160px; border-radius: 24px; padding: 12px 16px; line-height: 1.3; }
+.composer .send { width: var(--tap); height: var(--tap); min-width: var(--tap); border-radius: 50%; padding: 0; font-size: 20px; flex: none; }
+.empty-pane { margin: auto; text-align: center; padding: 30px; }
+
+/* ---------- 7. Sheet menu, scanner, toast ---------- */
+.sheet { position: fixed; inset: 0; background: rgba(0, 0, 0, .5); display: flex; align-items: flex-end; justify-content: center; z-index: 30; }
+.sheet-box { width: 100%; max-width: 480px; background: var(--bg-2); border-radius: 18px 18px 0 0; padding: 8px 8px calc(12px + var(--safe-b)); }
+.sheet-item { display: block; width: 100%; min-height: 56px; padding: 15px; background: none; border: 0; border-bottom: 1px solid var(--line); font-size: var(--fs-body); cursor: pointer; }
+.sheet-item:last-child { border-bottom: 0; }
+.sheet-item.danger { color: var(--red); } .sheet-item.muted { color: var(--text-2); }
+a.sheet-item { text-align: center; text-decoration: none; color: var(--text); box-sizing: border-box; } .sheet-item.sheet-update { color: var(--accent); font-weight: 600; }  /* 1.2.0 */
+.scanner { position: fixed; inset: 0; background: rgba(0, 0, 0, .85); display: flex; align-items: center; justify-content: center; z-index: 40; padding: calc(20px + var(--safe-t)) calc(20px + var(--safe-r)) calc(20px + var(--safe-b)) calc(20px + var(--safe-l)); }
+.scan-box { width: 100%; max-width: 420px; text-align: center; }
+.scan-view { position: relative; border-radius: 14px; overflow: hidden; background: #000; aspect-ratio: 1; }
+.scan-view video { width: 100%; height: 100%; object-fit: cover; }
+.scan-frame { position: absolute; inset: 16%; border: 3px solid var(--accent); border-radius: 14px; box-shadow: 0 0 0 999px rgba(0, 0, 0, .3); }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(80px + var(--safe-b)); background: var(--bg-4); border: 1px solid var(--line); padding: 12px 18px; border-radius: 14px; z-index: 50; max-width: calc(100% - 32px); font-size: var(--fs-sub); box-shadow: 0 8px 30px rgba(0, 0, 0, .4); }
+.toast.bad { border-color: #5e2a2a; color: #ffb4b4; }
+
+/* ---------- 7b. Pages over the chats (1.1.0): notifications, contacts, my ID ---------- */
+.page { position: fixed; inset: 0; z-index: 25; background: var(--bg); display: flex; flex-direction: column; }
+.page-head { display: flex; align-items: center; gap: 6px; min-height: calc(60px + var(--safe-t) + var(--top-gap)); padding: calc(6px + var(--safe-t) + var(--top-gap)) calc(12px + var(--safe-r)) 6px calc(4px + var(--safe-l)); background: var(--bg-2); border-bottom: 1px solid var(--line); }
+.page-head h2 { margin: 0; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.page-head .back { font-size: 38px; line-height: 1; color: var(--accent); }
+.page-body { flex: 1; overflow-y: auto; padding: 18px calc(18px + var(--safe-r)) calc(24px + var(--safe-b)) calc(18px + var(--safe-l)); -webkit-overflow-scrolling: touch; }
+.page-body > .muted:first-child { margin-top: 0; }
+.state-card { background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin: 14px 0 4px; display: flex; gap: 12px; align-items: center; }
+.state-card .big { font-size: 26px; }
+.state-card.on { border-color: var(--accent-2); }
+.state-card.bad { border-color: #5e2a2a; }
+.switch-row { flex-direction: row; align-items: center; justify-content: space-between; gap: 14px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; margin: 14px 0 0; color: var(--text); min-height: 64px; cursor: pointer; }
+.switch-row input { appearance: none; -webkit-appearance: none; flex: none; width: 52px; height: 32px; min-height: 32px; border-radius: 16px; background: var(--bg-4); border: 1px solid var(--line); position: relative; padding: 0; cursor: pointer; transition: background .15s; }
+.switch-row input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #cfd3da; transition: transform .15s; }
+.switch-row input:checked { background: var(--accent); border-color: var(--accent); }
+.switch-row input:checked::after { transform: translateX(20px); background: #fff; }
+.switch-row input:disabled { opacity: .45; }
+.btn.danger { color: var(--red); border-color: #5e2a2a; background: transparent; }
+
+/* ---------- 7c. Contacts (1.1.0): add, my ID, one contact ---------- */
+.file-btn { position: relative; overflow: hidden; color: var(--text); flex-direction: row; margin: 12px 0 0; font-size: var(--fs-body); }
+.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; min-height: 0; }
+textarea#adId { resize: vertical; font: 15px/1.35 ui-monospace, "SF Mono", Menlo, Consolas, monospace; word-break: break-all; }
+.qr-box { background: #fff; border-radius: 18px; padding: 14px; margin: 16px auto; width: min(100%, 340px); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
+.qr-box img { width: 100%; height: 100%; image-rendering: pixelated; }
+.qr-box img:not([src]) { display: none; }
+.id-text { font: 14px/1.45 ui-monospace, "SF Mono", Menlo, Consolas, monospace; word-break: break-all; background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; text-align: left; }
+.selectable { -webkit-user-select: all; user-select: all; }
+.two-btn { margin-top: 12px; } .two-btn .btn { flex: 1; }
+.ct-top { display: flex; gap: 14px; align-items: center; margin-bottom: 8px; }
+.ct-top b { font-size: 20px; display: block; }
+.sub-h { font-size: var(--fs-body); margin: 22px 0 6px; }
+.safety { font: 600 20px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: 1px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px 10px; text-align: center; }
+.ct-danger { margin-top: 26px; border-top: 1px solid var(--line); padding-top: 6px; }
+.ch-title { background: none; border: 0; text-align: left; padding: 0; cursor: pointer; min-height: var(--tap); display: flex; flex-direction: column; justify-content: center; }
+.avatar.lg { width: 64px; height: 64px; font-size: 24px; }
+
+/* ---------- 7d. Emoji (1.1.1) — the panel itself is in emoji-picker.css ---------- */
+.composer .emoji-btn { width: var(--tap); height: var(--tap); font-size: 24px; flex: none; }
+body.sc-emoji-open .chat-pane { padding-bottom: var(--sc-emoji-h, 0px); }          /* the chat shrinks above the emoji sheet */
+body.sc-emoji-open .composer { padding-bottom: 8px; }                            /* the sheet already covers the home bar */
+.composer textarea:disabled ~ .send, .composer textarea:disabled { opacity: .55; }
+
+/* ---------- 8. Wide screens: list + chat side by side ---------- */
+@media (min-width: 761px) {
+  #side { width: 320px; flex: none; border-right: 1px solid var(--line); }
+  #pane { display: flex; }
+  #scrMain.in-chat #side { display: flex; }
+  .chat-head .back { display: none; }
+  .bubble { max-width: min(72%, 640px); }
+  .page { inset: 6vh auto auto 50%; transform: translateX(-50%); width: min(560px, 92vw); max-height: 88vh; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, .5); }
+}
+
+/* ---------- 1.2.0: files in chats (📎, progress, previews, the file page) ---------- */
+.attach-btn { font-size: 22px; }
+.bubble .file { min-width: 0; }
+.bubble .file .fname { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.bubble .fstate { display: block; font-size: var(--fs-cap); color: var(--text-2); }
+.bubble .fact { margin-top: 6px; min-height: var(--tap); min-width: var(--tap); padding: 6px 16px; font-size: var(--fs-small, 15px); }
+.bubble .fbar { height: 4px; border-radius: 2px; background: var(--line); margin-top: 6px; overflow: hidden; }
+.bubble .fbar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .2s; }
+.bubble .fthumb { display: block; max-width: 100%; max-height: 260px; border-radius: 12px; margin: 2px 0 4px; cursor: pointer; }
+.bubble .ftap { cursor: pointer; }
+.file-view .fv-box { display: flex; justify-content: center; align-items: center; min-height: 160px; margin-bottom: 12px; }
+.file-view .fv-box img, .file-view .fv-box video { max-width: 100%; max-height: 62vh; border-radius: 12px; background: #000; }
+.file-view .fv-box audio { width: 100%; }
+.file-view .fv-big { font-size: 64px; }
+
+/* ---------- 1.2.1: Updates page ---------- */
+#pgUpdate .btn.wide { margin-top: 12px; }
+#pgUpdate .f { display: block; margin-top: 16px; font-size: var(--fs-sub); color: var(--text-2); }
+#pgUpdate .f input { display: block; width: 100%; box-sizing: border-box; margin-top: 6px; min-height: var(--tap); }
+
+/* ---------- 1.3.0: replies + reactions ---------- */
+.bubble .quote { display: block; border-left: 3px solid var(--accent); background: rgba(255,255,255,.06); border-radius: 8px; padding: 6px 10px; margin: 2px 0 6px; font-size: var(--fs-cap); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bubble .quote b { color: var(--accent); margin-right: 4px; }
+.bubble .quote span { color: var(--text-2); }
+.bubble { position: relative; }
+.bubble .reacts { position: absolute; bottom: -16px; display: flex; gap: 4px; }
+.bubble.in .reacts { left: 10px; } .bubble.out .reacts { right: 10px; }
+.bubble .react { background: var(--bg-3); border: 1px solid var(--line); border-radius: 14px; padding: 2px 7px; font-size: 16px; line-height: 1.3; }
+.bubble .react.mine { border-color: var(--accent-2); }
+.bubble:has(.reacts) { margin-bottom: 18px; }
+.bubble.flash { outline: 2px solid var(--accent); outline-offset: 2px; }
+.react-row { display: flex; justify-content: space-around; padding: 10px 6px; border-bottom: 1px solid var(--line); }
+.react-btn { min-width: var(--tap); min-height: var(--tap); font-size: 28px; background: none; border: 0; border-radius: 12px; cursor: pointer; }
+.react-btn.on { background: var(--bg-4); outline: 2px solid var(--accent-2); }
+.reply-bar { display: flex; align-items: center; gap: 8px; padding: 6px calc(10px + var(--safe-r)) 6px calc(14px + var(--safe-l)); background: var(--bg-2); border-top: 1px solid var(--line); font-size: var(--fs-sub); }
+.reply-bar .grow { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 1.3.0: your name on the My ID page */
+.me-handle { font-weight: 600; margin: 4px 0 8px; overflow-wrap: anywhere; }
+
+/* 1.4.0: a contact's Seal ID (as your computer checked it) */
+.contact .sid-mark { flex: none; width: 16px; height: 16px; }
+.contact .sid-mark.warn { width: auto; height: auto; color: var(--amber); font-size: 13px; }
+.ch-name-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.ch-name-row b { min-width: 0; }
+.sid-pill { flex: none; display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-cap); font-weight: 400; line-height: 1.5; padding: 0 8px; border-radius: 10px; background: var(--bg-4); color: var(--text-2); max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sid-pill img { width: 13px; height: 13px; flex: none; }
+.sid-pill.ok { background: #143a2a; color: var(--accent); padding-left: 5px; }
+.sid-pill.warn { background: #3a3014; color: var(--amber); }
+.badge { display: inline-block; font-size: var(--fs-cap); padding: 1px 8px; border-radius: 10px; background: var(--bg-4); color: var(--text-2); }
+.badge.ok { background: #143a2a; color: var(--accent); }
+.badge.warn { background: #3a3014; color: var(--amber); }
+.sid-addr { margin: 4px 0 6px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sid-addr a { font-weight: 600; word-break: break-all; }
+.sid-proofs { margin: 4px 0 8px 20px; padding: 0; }
+.sid-proofs li { margin: 3px 0; }
+.tip.warn-tip { background: #3a3014; border-color: #5e4a1c; color: var(--amber); }
+/* on a phone the name comes first: the pill shrinks to the Seal ID logo (or ⚠); the contact page has the details */
+@media (max-width: 760px) {
+  .sid-pill .sid-t { display: none; }
+  .sid-pill.ok, .sid-pill.warn { padding: 1px 5px; }
+  .sid-pill.bad, .sid-pill.checking { display: none; }
+}
